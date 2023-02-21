@@ -41,10 +41,10 @@ def test_watch_profile(auth_browser):
         browser.element('[checked="checked"]#gender-female')
 
 
-def test_watch_profile(auth_browser):
+def test_watc_page_change_password(auth_browser):
     auth_browser.open("")
 
-    with step("Check text buttion in change passwird"):
+    with step("Check text buttion in change password"):
         browser.element(".account").should(have.text(os.getenv('LOGIN'))).click()
         browser.element('.active').click()
         browser.element('[for="OldPassword"]')
