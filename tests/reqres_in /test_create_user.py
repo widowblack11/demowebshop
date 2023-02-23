@@ -1,4 +1,3 @@
-import requests
 from pytest_voluptuous import S
 
 from schemas.user import add_user

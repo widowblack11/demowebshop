@@ -1,9 +1,8 @@
 import os
 
+import allure
 import pytest
-from allure_commons._allure import step
 from dotenv import load_dotenv
-from requests import session
 from selene.support.shared import browser
 
 from utils.base_session import BaseSession
@@ -24,7 +23,7 @@ def auth_browser(demoshop):
     response = demoshop.post("/login", json={"Email": os.getenv("LOGIN"), "Password": os.getenv("PASSWORD")}, allow_redirects=False)
     authorization_cookie = response.cookies.get("NOPCOMMERCE.AUTH")
 
-    with step("Check code"):
+    with allure.step("Check code"):
         response.status_code = 302
 
     browser.open("/Themes/DefaultClean/Content/images/logo.png")
@@ -36,3 +35,6 @@ def auth_browser(demoshop):
 @pytest.fixture(scope='session')
 def reqres_in():
     return BaseSession(os.getenv("BASE_URL"))
+
+
+
