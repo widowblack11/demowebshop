@@ -18,7 +18,7 @@ def demoshop():
     return demoshop_session
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def auth_browser(demoshop):
     response = demoshop.post("/login", json={"Email": os.getenv("LOGIN"), "Password": os.getenv("PASSWORD")}, allow_redirects=False)
     authorization_cookie = response.cookies.get("NOPCOMMERCE.AUTH")
