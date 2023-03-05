@@ -5,22 +5,32 @@ import pytest
 from dotenv import load_dotenv
 from selene.support.shared import browser
 
+from framework.DemoQaWithEnv import DemoQaWithEnv
 from utils.base_session import BaseSession
 
 browser.config.base_url = "https://demowebshop.tricentis.com"
 
 load_dotenv()
 
+def pytest_addoption(parser):
+    parser.addoption("--env", action='store', default="prod")
+
 
 @pytest.fixture(scope='session')
-def demoshop():
-    demoshop_session = BaseSession(os.getenv("API_URL"))
-    return demoshop_session
+def demoshop(request):
+    env = request.config.getoption("--env")
+    return DemoQaWithEnv(env)
+
+
+@pytest.fixture(scope='session')
+def reqres(request):
+    env = request.config.getoption("--env")
+    return DemoQaWithEnv(env).reqres
 
 
 @pytest.fixture(scope='function')
 def auth_browser(demoshop):
-    response = demoshop.post("/login", json={"Email": os.getenv("LOGIN"), "Password": os.getenv("PASSWORD")}, allow_redirects=False)
+    response = demoshop.login(os.getenv("LOGIN"), os.getenv("PASSWORD"))
     authorization_cookie = response.cookies.get("NOPCOMMERCE.AUTH")
 
     with allure.step("Check code"):
@@ -32,9 +42,6 @@ def auth_browser(demoshop):
     return browser
 
 
-@pytest.fixture(scope='session')
-def reqres_in():
-    return BaseSession(os.getenv("BASE_URL"))
 
 
 
