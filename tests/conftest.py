@@ -37,7 +37,7 @@ def auth_browser(demoshop):
     authorization_cookie = response.cookies.get("NOPCOMMERCE.AUTH")
 
     with allure.step("Check code"):
-        response.status_code = 302
+        assert response.status_code == 302
 
     browser.open("/Themes/DefaultClean/Content/images/logo.png")
 
