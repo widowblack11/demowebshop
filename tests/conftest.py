@@ -6,30 +6,33 @@ from dotenv import load_dotenv
 from selene.support.shared import browser
 
 from framework.DemoQaWithEnv import DemoQaWithEnv
-from utils.base_session import BaseSession
 
-browser.config.base_url = "https://demowebshop.tricentis.com"
 
 load_dotenv()
+
 
 def pytest_addoption(parser):
     parser.addoption("--env", action='store', default="prod")
 
 
-@pytest.fixture(scope='session')
-def demoshop(request):
-    env = request.config.getoption("--env")
-    return DemoQaWithEnv(env)
+@pytest.fixture(scope="session")
+def get_option(request):
+    return request.config.getoption("--env")
 
 
 @pytest.fixture(scope='session')
-def reqres(request):
-    env = request.config.getoption("--env")
-    return DemoQaWithEnv(env).reqres
+def demoshop(get_option):
+    return DemoQaWithEnv(get_option)
+
+
+@pytest.fixture(scope='session')
+def reqres(get_option):
+    return DemoQaWithEnv(get_option).reqres
 
 
 @pytest.fixture(scope='function')
 def auth_browser(demoshop):
+    browser.config.base_url = demoshop.demoqa.url
     response = demoshop.login(os.getenv("LOGIN"), os.getenv("PASSWORD"))
     authorization_cookie = response.cookies.get("NOPCOMMERCE.AUTH")
 
@@ -39,7 +42,10 @@ def auth_browser(demoshop):
     browser.open("/Themes/DefaultClean/Content/images/logo.png")
 
     browser.driver.add_cookie({"name": "NOPCOMMERCE.AUTH", "value": authorization_cookie})
-    return browser
+
+    yield browser
+
+    browser.quit()
 
 
 
