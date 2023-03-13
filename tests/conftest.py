@@ -30,21 +30,24 @@ def reqres(get_option):
     return DemoQaWithEnv(get_option).reqres
 
 
-@pytest.fixture(scope='function')
-def auth_browser(demoshop):
-    browser.config.base_url = demoshop.demoqa.url
+@pytest.fixture(scope='session')
+def cookie(demoshop):
     response = demoshop.login(os.getenv("LOGIN"), os.getenv("PASSWORD"))
     authorization_cookie = response.cookies.get("NOPCOMMERCE.AUTH")
 
     with allure.step("Check code"):
         assert response.status_code == 302
 
-    browser.open("/Themes/DefaultClean/Content/images/logo.png")
+    return authorization_cookie
 
-    browser.driver.add_cookie({"name": "NOPCOMMERCE.AUTH", "value": authorization_cookie})
+
+@pytest.fixture(scope='function')
+def auth_browser(demoshop, cookie):
+    browser.config.base_url = demoshop.demoqa.url
+    browser.open("/Themes/DefaultClean/Content/images/logo.png")
+    browser.driver.add_cookie({"name": "NOPCOMMERCE.AUTH", "value": cookie})
 
     yield browser
-
     browser.quit()
 
 
